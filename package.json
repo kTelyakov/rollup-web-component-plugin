@@ -1,0 +1,24 @@
+{
+  "name": "rollup-web-component-plugin",
+  "version": "1.0.0",
+  "description": "rollup web component plugin will wrap your app into web component - zero dependencies!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/ktelyakov/rollup-web-component-plugin/issues"
+  },
+  "homepage": "https://github.com/ktelyakov/rollup-web-component-plugin#readme",
+  "keywords": [
+    "rollup",
+    "rollup-web-component-plugin",
+    "web-component",
+    "vue",
+    "vue.js",
+    "vue3",
+    "vue2"
+  ],
+  "author": "ktelyakov <telyakov.k.v@gmail.com>",
+  "license": "ISC"
+}
