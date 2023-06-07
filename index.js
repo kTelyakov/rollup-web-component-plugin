@@ -21,7 +21,6 @@ function getTemplate(inlinedCss, app) {
       }
     }
 
-    // Define the custom element for the Web Component
     customElements.define(tag, MyWebComponent);
   }`;
 }
@@ -33,7 +32,6 @@ export default function rollupWebComponentPlugin() {
     generateBundle(outputOptions, bundle) {
       const { format } = outputOptions;
 
-      // Check if the format is compatible with Web Components
       if (format !== "es" && format !== "umd") {
         console.warn(
           "[rollupWebComponentPlugin] The output format is not compatible with Web Components. Skipping..."
@@ -41,20 +39,15 @@ export default function rollupWebComponentPlugin() {
         return;
       }
 
-      // Get the bundle output file
       const bundleFile = Object.keys(bundle)[0];
 
-      // Get the bundle code
       const bundleCode = bundle[bundleFile].code;
       const withUpdatedImports = bundleCode.replace(
         /(export\s*{[\s\S]*?)(};)/,
         `$1,${ENTRY_FUNCTION_NAME}$2`
       );
 
-      // Create the Web Component wrapper code
       const wrapperCode = `${withUpdatedImports}{{PASTE_WRAPPER}}`;
-
-      // Update the bundle code with the Web Component wrapper code
       bundle[bundleFile].code = wrapperCode;
     },
 
@@ -73,11 +66,9 @@ export default function rollupWebComponentPlugin() {
           getTemplate(cssSource, appVariable)
         );
 
-        // Read the file content
         const bundledEntryFilePath =
           path.resolve() + "/dist/" + entrySourceName;
 
-        // // Write the modified content back to the output file
         fs.writeFileSync(bundledEntryFilePath, output, "utf-8");
       }
     },
