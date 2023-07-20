@@ -1,31 +1,13 @@
 import fs from "fs";
 import path from "path";
 
-const ENTRY_FUNCTION_NAME = "init";
-
-function getTemplate(inlinedCss, app) {
-  return `
-  function ${ENTRY_FUNCTION_NAME} (tag) {
-    class MyWebComponent extends HTMLElement {
-      connectedCallback() {
-        const shadowRoot = this.attachShadow({ mode: 'open' });
-
-        const style = document.createElement('style');
-        style.textContent = ${JSON.stringify(inlinedCss)};
-        shadowRoot.appendChild(style);
-
-        const mountPoint = document.createElement('div');
-        mountPoint.setAttribute('id', 'app')
-        shadowRoot.appendChild(mountPoint);
-        ${app}.mount(mountPoint);
-      }
-    }
-
-    customElements.define(tag, MyWebComponent);
-  }`;
-}
-
-export default function rollupWebComponentPlugin() {
+export default function rollupWebComponentPlugin(getTemplate) {
+  if (!getTemplate || typeof getTemplate !== 'function') {
+    throw Error('[rollupWebComponentPlugin]: getTemplate must be a function!')
+  }
+  if (getTemplate.length !== 2) {
+    throw Error('[rollupWebComponentPlugin]: getTemplate function must have 2 arguments:\n 1) inlined css \n 2) your app')
+  }
   return {
     name: "web-component",
 
@@ -34,7 +16,7 @@ export default function rollupWebComponentPlugin() {
 
       if (format !== "es" && format !== "umd") {
         console.warn(
-          "[rollupWebComponentPlugin] The output format is not compatible with Web Components. Skipping..."
+            "[rollupWebComponentPlugin] The output format is not compatible with Web Components. Skipping..."
         );
         return;
       }
@@ -43,8 +25,8 @@ export default function rollupWebComponentPlugin() {
 
       const bundleCode = bundle[bundleFile].code;
       const withUpdatedImports = bundleCode.replace(
-        /(export\s*{[\s\S]*?)(};)/,
-        `$1,${ENTRY_FUNCTION_NAME}$2`
+          /(export\s*{[\s\S]*?)(};)/,
+          `$1,init,$2`
       );
 
       const wrapperCode = `${withUpdatedImports}{{PASTE_WRAPPER}}`;
@@ -62,12 +44,12 @@ export default function rollupWebComponentPlugin() {
         const match = entrySource.match(/export\s*{\s*(\w+)\s+as\s+app\s*,/);
         const appVariable = match?.[1];
         const output = entrySource.replace(
-          "{{PASTE_WRAPPER}}",
-          getTemplate(cssSource, appVariable)
+            "{{PASTE_WRAPPER}}",
+            getTemplate(cssSource, appVariable)
         );
 
         const bundledEntryFilePath =
-          path.resolve() + "/dist/" + entrySourceName;
+            path.resolve() + "/dist/" + entrySourceName;
 
         fs.writeFileSync(bundledEntryFilePath, output, "utf-8");
       }
