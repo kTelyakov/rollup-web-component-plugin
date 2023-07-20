@@ -1,6 +1,6 @@
 {
   "name": "rollup-web-component-plugin",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "rollup web component plugin will wrap your app into web component - zero dependencies!",
   "main": "index.js",
   "type": "module",

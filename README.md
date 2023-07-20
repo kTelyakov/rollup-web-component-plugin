@@ -15,8 +15,31 @@ Render your app into isolated shadow dom
 ## Usage
 1. Install rollup-web-component-plugin using `npm install --save-dev rollup-web-component-plugin`
 2. import plugin `import rollupWebComponentPlugin from 'rollupWebComponentPlugin'`
-3. add to your config into plugins section `plugins: [rollupWebComponentPlugin()]`
-4. Now, your package export init function )
+3. add to your config into plugins section `plugins: [rollupWebComponentPlugin(wrapperFn)]`
+4. Pass wrapperFn, which include wrap logic. For Example:
+```
+function getTemplate(inlinedCss, app) {
+  return `
+  function init (tag) {
+    class MyWebComponent extends HTMLElement {
+      connectedCallback() {
+        const shadowRoot = this.attachShadow({ mode: 'open' });
+
+        const style = document.createElement('style');
+        style.textContent = ${JSON.stringify(inlinedCss)};
+        shadowRoot.appendChild(style);
+
+        const mountPoint = document.createElement('div');
+        mountPoint.setAttribute('id', 'app')
+        shadowRoot.appendChild(mountPoint);
+        ${app}.mount(mountPoint);
+      }
+    }
+
+    customElements.define(tag, MyWebComponent);
+  }`;
+```
+
 5. In the place, when you will use your library - you will import { init } from 'myLibrary'
 6. init('my-web-component')
 7. Paste in your app <my-web-component></my-web-component>
